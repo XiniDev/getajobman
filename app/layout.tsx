@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -40,6 +41,7 @@ export default function RootLayout({
           <main className="min-h-screen flex flex-col items-center">
             {children}
           </main>
+          <Footer />
 
         </ThemeProvider>
       </body>
