@@ -1,3 +1,11 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 export function Features() {
   const featureList = [
     {
@@ -25,16 +33,17 @@ export function Features() {
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mt-32 w-full">
       {featureList.map((feature, index) => (
-        <div 
-          key={index} 
-          className="flex flex-col gap-3 p-8 rounded-2xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow"
-        >
-          <div className="text-4xl mb-2">{feature.icon}</div>
-          <h3 className="font-bold text-xl">{feature.title}</h3>
-          <p className="text-muted-foreground leading-relaxed">
-            {feature.description}
-          </p>
-        </div>
+        <Card key={index} className="hover:shadow-md transition-shadow border-muted/50">
+          <CardHeader>
+            <div className="text-4xl mb-2">{feature.icon}</div>
+            <CardTitle className="text-xl">{feature.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-base leading-relaxed">
+              {feature.description}
+            </CardDescription>
+          </CardContent>
+        </Card>
       ))}
     </section>
   );
