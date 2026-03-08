@@ -1,8 +1,10 @@
 export type Profile = {
-  id: string;
+  id: string; 
   first_name: string | null;
+  middle_name: string | null;
   last_name: string | null;
-  created_at: string;
+  preferred_name: string | null;
+  created_at: string; 
   updated_at: string;
 };
 

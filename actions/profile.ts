@@ -10,13 +10,17 @@ export async function updateProfile(formData: FormData) {
   if (!user) throw new Error("Unauthorized");
 
   const first_name = formData.get("first_name") as string;
+  const middle_name = formData.get("middle_name") as string;
   const last_name = formData.get("last_name") as string;
+  const preferred_name = formData.get("preferred_name") as string;
 
   const { error } = await supabase
     .from("profiles")
     .update({ 
-      first_name, 
+      first_name,
+      middle_name, 
       last_name, 
+      preferred_name,
       updated_at: new Date().toISOString() 
     })
     .eq("id", user.id);
