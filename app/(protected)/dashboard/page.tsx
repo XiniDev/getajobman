@@ -1,19 +1,19 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Target, TrendingDown, Inbox, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FileText, Target, TrendingDown, Zap, Settings2, Inbox } from "lucide-react";
+import { AddJobModal } from "@/components/jobs/add-job-modal";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return redirect("/auth/login");
 
-  if (!user) {
-    return redirect("/auth/login");
-  }
+  const { count: totalJobs } = await supabase
+    .from("jobs")
+    .select("*", { count: "exact", head: true });
 
   return (
     <div className="w-full max-w-6xl mx-auto p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
@@ -24,24 +24,21 @@ export default async function DashboardPage() {
             Welcome back, <span className="font-medium text-foreground">{user.email}</span>. Let's get you hired.
           </p>
         </div>
-        <Button size="lg" className="font-bold">
-          <Zap className="mr-2 h-4 w-4 fill-current" />
-          Scan New Jobs
-        </Button>
+        <AddJobModal />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Jobs Applied</CardTitle>
+            <CardTitle className="text-sm font-medium">Saved Jobs</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">+0 from last week</p>
+            <div className="text-2xl font-bold">{totalJobs || 0}</div>
+            <p className="text-xs text-muted-foreground">Waiting in your queue</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Interviews Secured</CardTitle>
@@ -77,7 +74,11 @@ export default async function DashboardPage() {
             <div className="p-3 bg-muted rounded-full">
               <Inbox className="h-6 w-6 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground font-medium">Your queue is empty.</p>
+            <p className="text-muted-foreground font-medium">
+              {totalJobs && totalJobs > 0 
+                ? `You have ${totalJobs} jobs waiting to be processed.` 
+                : "Your queue is empty."}
+            </p>
             <Button variant="outline" size="sm">
               <Settings2 className="mr-2 h-4 w-4" />
               Configure Filters
