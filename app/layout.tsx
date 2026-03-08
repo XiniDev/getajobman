@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -26,8 +24,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const hasEnvVars = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ? true : false;
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased bg-background text-foreground`}>
@@ -37,12 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar hasEnvVars={hasEnvVars} />
-          <main className="min-h-screen flex flex-col items-center">
-            {children}
-          </main>
-          <Footer />
-
+          {children}
         </ThemeProvider>
       </body>
     </html>
