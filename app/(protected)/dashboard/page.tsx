@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Target, TrendingDown, Inbox, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddJobModal } from "@/components/jobs/add-job-modal";
+import { JobCard } from "@/components/jobs/job-card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -11,9 +12,12 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/auth/login");
 
-  const { count: totalJobs } = await supabase
+  const { data: jobs } = await supabase
     .from("jobs")
-    .select("*", { count: "exact", head: true });
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const totalJobs = jobs?.length || 0;
 
   return (
     <div className="w-full max-w-6xl mx-auto p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
@@ -34,7 +38,7 @@ export default async function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalJobs || 0}</div>
+            <div className="text-2xl font-bold">{totalJobs}</div>
             <p className="text-xs text-muted-foreground">Waiting in your queue</p>
           </CardContent>
         </Card>
@@ -62,28 +66,33 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="col-span-1">
-        <CardHeader>
+      <Card className="col-span-1 border-none shadow-none bg-transparent">
+        <CardHeader className="px-0">
           <CardTitle>Job Queue</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Jobs waiting for your review. Swipe or approve to auto-apply.
+            Jobs waiting for your review.
           </p>
         </CardHeader>
-        <CardContent className="h-64 flex flex-col items-center justify-center border-t border-dashed m-6 rounded-lg bg-muted/10">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="p-3 bg-muted rounded-full">
-              <Inbox className="h-6 w-6 text-muted-foreground" />
+        <CardContent className="px-0 space-y-4">
+          {jobs && jobs.length > 0 ? (
+            jobs.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))
+          ) : (
+            <div className="h-48 flex flex-col items-center justify-center border border-dashed rounded-lg bg-muted/10">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-muted rounded-full">
+                  <Inbox className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground font-medium">Your queue is empty.</p>
+                <Button variant="outline" size="sm">
+                  <Settings2 className="mr-2 h-4 w-4" />
+                  Configure Filters
+                </Button>
+              </div>
             </div>
-            <p className="text-muted-foreground font-medium">
-              {totalJobs && totalJobs > 0 
-                ? `You have ${totalJobs} jobs waiting to be processed.` 
-                : "Your queue is empty."}
-            </p>
-            <Button variant="outline" size="sm">
-              <Settings2 className="mr-2 h-4 w-4" />
-              Configure Filters
-            </Button>
-          </div>
+          )}
+          
         </CardContent>
       </Card>
 

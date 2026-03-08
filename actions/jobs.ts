@@ -27,3 +27,25 @@ export async function addJob(formData: FormData) {
 
   revalidatePath("/dashboard");
 }
+
+export async function deleteJob(formData: FormData) {
+  const supabase = await createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const jobId = formData.get("id") as string;
+
+  const { error } = await supabase
+    .from("jobs")
+    .delete()
+    .eq("id", jobId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("DB Delete Error:", error.message);
+    throw new Error("Failed to delete job.");
+  }
+
+  revalidatePath("/dashboard");
+}
