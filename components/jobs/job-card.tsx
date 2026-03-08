@@ -5,6 +5,7 @@ import { deleteJob } from "@/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Building2, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { EditJobModal } from "./edit-job-modal";
 
 export function JobCard({ job }: { job: Job }) {
   return (
@@ -31,7 +32,7 @@ export function JobCard({ job }: { job: Job }) {
       </div>
 
       <div className="flex items-center gap-2">
-        {/* Edit button here later */}
+        <EditJobModal job={job} />
 
         <form action={deleteJob}>
           <input type="hidden" name="id" value={job.id} />

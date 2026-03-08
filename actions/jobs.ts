@@ -49,3 +49,33 @@ export async function deleteJob(formData: FormData) {
 
   revalidatePath("/dashboard");
 }
+
+export async function editJob(formData: FormData) {
+  const supabase = await createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const id = formData.get("id") as string;
+  const company_name = formData.get("company_name") as string;
+  const job_title = formData.get("job_title") as string;
+  const job_url = formData.get("job_url") as string;
+
+  const { error } = await supabase
+    .from("jobs")
+    .update({ 
+      company_name, 
+      job_title, 
+      job_url,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("DB Update Error:", error.message);
+    throw new Error("Failed to update job.");
+  }
+
+  revalidatePath("/dashboard");
+}
