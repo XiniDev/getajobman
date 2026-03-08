@@ -6,7 +6,7 @@ export default function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const hasEnvVars = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? true : false;
+  const hasEnvVars = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ? true : false;
 
   return (
     <div className="flex flex-col min-h-screen">

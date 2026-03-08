@@ -5,9 +5,9 @@ import {
   Inbox, 
   FileText, 
   Settings, 
-  LogOut,
   Briefcase
 } from "lucide-react";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 export function Sidebar() {
   return (
@@ -47,12 +47,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t">
-        <Button variant="outline" className="w-full justify-start text-muted-foreground" asChild>
-          <Link href="/auth/login">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Link>
-        </Button>
+        <LogoutButton />
       </div>
     </aside>
   );
