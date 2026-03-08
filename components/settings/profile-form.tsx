@@ -25,13 +25,17 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   return (
     <form action={onSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
         <div className="space-y-2">
-          <Label htmlFor="first_name">First Name</Label>
+          <Label htmlFor="first_name">
+            First Name <span className="text-destructive">*</span>
+          </Label>
           <Input 
             id="first_name" 
             name="first_name" 
             defaultValue={profile?.first_name || ""} 
-            placeholder="John" 
+            placeholder="Your first name" 
+            required
           />
         </div>
         
@@ -41,17 +45,20 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             id="middle_name" 
             name="middle_name" 
             defaultValue={profile?.middle_name || ""} 
-            placeholder="Edward" 
+            placeholder="Your middle name" 
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="last_name">Last Name</Label>
+          <Label htmlFor="last_name">
+            Last Name <span className="text-destructive">*</span>
+          </Label>
           <Input 
             id="last_name" 
             name="last_name" 
             defaultValue={profile?.last_name || ""} 
-            placeholder="Doe" 
+            placeholder="Your last name" 
+            required
           />
         </div>
       </div>
@@ -62,7 +69,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           id="preferred_name" 
           name="preferred_name" 
           defaultValue={profile?.preferred_name || ""} 
-          placeholder="Johnny" 
+          placeholder="What you prefer to be called" 
         />
         <p className="text-xs text-muted-foreground">
           If provided, the AI will use this name in your cover letters instead of your legal first name.

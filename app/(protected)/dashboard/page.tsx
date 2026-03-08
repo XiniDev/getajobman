@@ -12,6 +12,14 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/auth/login");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("first_name, preferred_name")
+    .eq("id", user.id)
+    .single();
+
+  const displayName = profile?.preferred_name || profile?.first_name || user.email;
+
   const { data: jobs } = await supabase
     .from("jobs")
     .select("*")
@@ -25,7 +33,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome back, <span className="font-medium text-foreground">{user.email}</span>. Let's get you hired.
+            Welcome back, <span className="font-medium text-foreground">{displayName}</span>. Let's get you hired.
           </p>
         </div>
         <AddJobModal />
