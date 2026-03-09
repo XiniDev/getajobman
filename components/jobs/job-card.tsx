@@ -1,10 +1,10 @@
 "use client";
 
-import { Job, JobStatus } from "@/lib/types";
+import { Job, JobStatus } from "@/lib/types"; 
 import { deleteJob } from "@/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ExternalLink, Trash2 } from "lucide-react";
+import { Building2, ExternalLink, Trash2, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { EditJobModal } from "./edit-job-modal";
 
@@ -83,6 +83,12 @@ export function JobCard({ job }: { job: Job }) {
             <ExternalLink className="h-4 w-4" />
             View Listing
           </Link>
+          {job.job_description && (
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+              <FileCheck className="h-4 w-4" />
+              Scraped
+            </span>
+          )}
         </div>
       </div>
 

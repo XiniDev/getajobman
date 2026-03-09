@@ -12,8 +12,25 @@ export async function addJob(formData: FormData) {
   const company_name = formData.get("company_name") as string;
   const job_title = formData.get("job_title") as string;
   const job_url = formData.get("job_url") as string;
-  
   const status = (formData.get("status") as string) || "saved";
+
+  let job_description = null;
+  
+  try {
+    console.log(`Scraping URL: ${job_url}...`);
+    const response = await fetch(`https://r.jina.ai/${job_url}`, {
+      signal: AbortSignal.timeout(10000) 
+    });
+
+    if (response.ok) {
+      job_description = await response.text();
+      console.log("Successfully scraped job description!");
+    } else {
+      console.warn("Scraper was blocked or failed. Status:", response.status);
+    }
+  } catch (error) {
+    console.error("Scraping error:", error);
+  }
 
   const { error } = await supabase.from("jobs").insert({
     user_id: user.id,
@@ -21,6 +38,7 @@ export async function addJob(formData: FormData) {
     job_title,
     job_url,
     status,
+    job_description,
   });
 
   if (error) {
@@ -63,8 +81,8 @@ export async function editJob(formData: FormData) {
   const company_name = formData.get("company_name") as string;
   const job_title = formData.get("job_title") as string;
   const job_url = formData.get("job_url") as string;
-
   const status = formData.get("status") as string;
+  const job_description = formData.get("job_description") as string;
 
   const { error } = await supabase
     .from("jobs")
@@ -73,6 +91,7 @@ export async function editJob(formData: FormData) {
       job_title, 
       job_url,
       status,
+      job_description,
       updated_at: new Date().toISOString()
     })
     .eq("id", id)
