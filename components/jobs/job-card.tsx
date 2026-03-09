@@ -4,7 +4,7 @@ import { Job, JobStatus } from "@/lib/types";
 import { deleteJob } from "@/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ExternalLink, Trash2, FileCheck } from "lucide-react";
+import { Loader2, Building2, ExternalLink, Trash2, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { EditJobModal } from "./edit-job-modal";
 
@@ -55,15 +55,21 @@ const statusConfig: Record<JobStatus, { label: string; variant: "default" | "sec
 };
 
 export function JobCard({ job }: { job: Job }) {
+  const isProcessing = job.company_name === "Scraping...";
   const currentStatus = statusConfig[job.status] || statusConfig.saved;
 
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg bg-card text-card-foreground shadow-sm transition-all hover:shadow-md">
+    <div className={`flex items-center justify-between p-4 border rounded-lg bg-card text-card-foreground shadow-sm transition-all ${isProcessing ? 'opacity-70 animate-pulse' : 'hover:shadow-md'}`}>
       
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-3">
           <h3 className="font-bold text-lg leading-none">
-            {job.job_title}
+            {isProcessing ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analyzing Listing...
+              </span>
+            ) : job.job_title}
           </h3>
           <Badge variant={currentStatus.variant} className={currentStatus.className}>
             {currentStatus.label}
@@ -83,8 +89,8 @@ export function JobCard({ job }: { job: Job }) {
             <ExternalLink className="h-4 w-4" />
             View Listing
           </Link>
-          {job.job_description && (
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+          {!isProcessing && job.job_description && (
+            <span className="flex items-center gap-1 text-emerald-600 font-medium">
               <FileCheck className="h-4 w-4" />
               Scraped
             </span>
@@ -93,7 +99,7 @@ export function JobCard({ job }: { job: Job }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <EditJobModal job={job} />
+        {!isProcessing && <EditJobModal job={job} />}
 
         <form action={deleteJob}>
           <input type="hidden" name="id" value={job.id} />
@@ -102,7 +108,6 @@ export function JobCard({ job }: { job: Job }) {
           </Button>
         </form>
       </div>
-      
     </div>
   );
 }

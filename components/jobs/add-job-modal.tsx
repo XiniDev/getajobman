@@ -21,21 +21,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Wand2 } from "lucide-react";
 
 export function AddJobModal() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(formData: FormData) {
-    setLoading(true);
+    setOpen(false);
     try {
       await addJob(formData);
-      setOpen(false);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -44,7 +41,7 @@ export function AddJobModal() {
       <DialogTrigger asChild>
         <Button size="lg" className="font-bold">
           <Plus className="mr-2 h-4 w-4" />
-          Add Job Manually
+          Add Job
         </Button>
       </DialogTrigger>
       
@@ -53,24 +50,14 @@ export function AddJobModal() {
           <DialogHeader>
             <DialogTitle>Track a New Job</DialogTitle>
             <DialogDescription>
-              Paste the details of the job and set its current status.
+              Paste the URL of the job posting. Our AI will automatically extract the company, title, and requirements.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4 mt-2">
-            <div className="space-y-2">
-              <Label htmlFor="company_name">Company Name</Label>
-              <Input id="company_name" name="company_name" placeholder="e.g. OpenAI" required />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="job_title">Job Title</Label>
-              <Input id="job_title" name="job_title" placeholder="e.g. Frontend Engineer" required />
-            </div>
-            
+          <div className="grid gap-4 py-6 mt-2">
             <div className="space-y-2">
               <Label htmlFor="job_url">Job URL</Label>
-              <Input id="job_url" name="job_url" type="url" placeholder="https://..." required />
+              <Input id="job_url" name="job_url" type="url" placeholder="https://linkedin.com/jobs/..." required autoFocus />
             </div>
 
             <div className="space-y-2">
@@ -99,10 +86,13 @@ export function AddJobModal() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  Extracting...
                 </>
               ) : (
-                "Save Job"
+                <>
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Extract Job
+                </>
               )}
             </Button>
           </DialogFooter>

@@ -2,51 +2,63 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { extractJobData } from "@/lib/ai/extractor";
 
 export async function addJob(formData: FormData) {
   const supabase = await createClient();
-
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
-
-  const company_name = formData.get("company_name") as string;
-  const job_title = formData.get("job_title") as string;
-  const job_url = formData.get("job_url") as string;
-  const status = (formData.get("status") as string) || "saved";
-
-  let job_description = null;
   
-  try {
-    console.log(`Scraping URL: ${job_url}...`);
-    const response = await fetch(`https://r.jina.ai/${job_url}`, {
-      signal: AbortSignal.timeout(10000) 
-    });
+  const job_url = formData.get("job_url") as string;
+  const initial_status = (formData.get("status") as string) || "saved";
 
-    if (response.ok) {
-      job_description = await response.text();
-      console.log("Successfully scraped job description!");
-    } else {
-      console.warn("Scraper was blocked or failed. Status:", response.status);
-    }
-  } catch (error) {
-    console.error("Scraping error:", error);
-  }
+  const { data: newJob, error: insertError } = await supabase
+    .from("jobs")
+    .insert({
+      user_id: user.id,
+      company_name: "Scraping...",
+      job_title: "New Position",
+      job_url,
+      status: initial_status,
+      job_description: null,
+    })
+    .select()
+    .single();
 
-  const { error } = await supabase.from("jobs").insert({
-    user_id: user.id,
-    company_name,
-    job_title,
-    job_url,
-    status,
-    job_description,
-  });
+  if (insertError) throw new Error("Failed to initialize job slot");
 
-  if (error) {
-    console.error("DB Insert Error:", error.message);
-    throw new Error("Failed to add job.");
-  }
+  processAILogic(newJob.id, job_url, user.id); 
 
   revalidatePath("/dashboard");
+  return { success: true };
+}
+
+async function processAILogic(jobId: string, url: string, userId: string) {
+  const supabase = await createClient();
+  let scrapedText = null;
+
+  try {
+    const response = await fetch(`https://r.jina.ai/${url}`, { signal: AbortSignal.timeout(10000) });
+    if (response.ok) scrapedText = await response.text();
+
+    if (scrapedText) {
+      const aiData = await extractJobData(scrapedText);
+      if (aiData) {
+        await supabase
+          .from("jobs")
+          .update({
+            company_name: aiData.company_name,
+            job_title: aiData.job_title,
+            job_description: aiData.job_description,
+          })
+          .eq("id", jobId);
+      }
+    }
+  } catch (e) {
+    console.error("Background AI processing failed", e);
+  } finally {
+    revalidatePath("/dashboard");
+  }
 }
 
 export async function deleteJob(formData: FormData) {
