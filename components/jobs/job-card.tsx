@@ -1,21 +1,76 @@
 "use client";
 
-import { Job } from "@/lib/types";
+import { Job, JobStatus } from "@/lib/types";
 import { deleteJob } from "@/actions/jobs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Building2, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { EditJobModal } from "./edit-job-modal";
 
+const statusConfig: Record<JobStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
+  saved: { 
+    label: "Saved", 
+    variant: "secondary" 
+  },
+  drafting: { 
+    label: "Drafting", 
+    variant: "secondary", 
+    className: "bg-amber-100 text-amber-800 hover:bg-amber-100/80 dark:bg-amber-900/30 dark:text-amber-400" 
+  },
+  applied: { 
+    label: "Applied", 
+    variant: "default", 
+    className: "bg-blue-500 hover:bg-blue-600 text-white" 
+  },
+  assessment: { 
+    label: "Assessment", 
+    variant: "default", 
+    className: "bg-purple-500 hover:bg-purple-600 text-white" 
+  },
+  interviewing: { 
+    label: "Interviewing", 
+    variant: "default", 
+    className: "bg-indigo-500 hover:bg-indigo-600 text-white" 
+  },
+  offer: { 
+    label: "Offer!", 
+    variant: "default", 
+    className: "bg-emerald-500 hover:bg-emerald-600 text-white" 
+  },
+  rejected: { 
+    label: "Rejected", 
+    variant: "destructive" 
+  },
+  ghosted: { 
+    label: "Ghosted", 
+    variant: "outline", 
+    className: "text-muted-foreground border-dashed" 
+  },
+  withdrawn: { 
+    label: "Withdrawn", 
+    variant: "outline", 
+    className: "text-muted-foreground" 
+  },
+};
+
 export function JobCard({ job }: { job: Job }) {
+  const currentStatus = statusConfig[job.status] || statusConfig.saved;
+
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg bg-card text-card-foreground shadow-sm transition-all hover:shadow-md">
       
-      <div className="flex flex-col gap-1">
-        <h3 className="font-bold text-lg flex items-center gap-2">
-          {job.job_title}
-        </h3>
-        <div className="flex items-center text-muted-foreground text-sm gap-4">
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-3">
+          <h3 className="font-bold text-lg leading-none">
+            {job.job_title}
+          </h3>
+          <Badge variant={currentStatus.variant} className={currentStatus.className}>
+            {currentStatus.label}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center text-muted-foreground text-sm gap-4 mt-1">
           <span className="flex items-center gap-1">
             <Building2 className="h-4 w-4" />
             {job.company_name}

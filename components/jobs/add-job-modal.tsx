@@ -14,6 +14,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Loader2 } from "lucide-react";
 
 export function AddJobModal() {
@@ -46,7 +53,7 @@ export function AddJobModal() {
           <DialogHeader>
             <DialogTitle>Track a New Job</DialogTitle>
             <DialogDescription>
-              Paste the details of the job. We will automate the application process later.
+              Paste the details of the job and set its current status.
             </DialogDescription>
           </DialogHeader>
           
@@ -55,13 +62,35 @@ export function AddJobModal() {
               <Label htmlFor="company_name">Company Name</Label>
               <Input id="company_name" name="company_name" placeholder="e.g. OpenAI" required />
             </div>
+            
             <div className="space-y-2">
               <Label htmlFor="job_title">Job Title</Label>
               <Input id="job_title" name="job_title" placeholder="e.g. Frontend Engineer" required />
             </div>
+            
             <div className="space-y-2">
               <Label htmlFor="job_url">Job URL</Label>
               <Input id="job_url" name="job_url" type="url" placeholder="https://..." required />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Current Status</Label>
+              <Select name="status" defaultValue="saved">
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="saved">Saved</SelectItem>
+                  <SelectItem value="drafting">Drafting</SelectItem>
+                  <SelectItem value="applied">Applied</SelectItem>
+                  <SelectItem value="assessment">Assessment</SelectItem>
+                  <SelectItem value="interviewing">Interviewing</SelectItem>
+                  <SelectItem value="offer">Offer!</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="ghosted">Ghosted</SelectItem>
+                  <SelectItem value="withdrawn">Withdrawn</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           

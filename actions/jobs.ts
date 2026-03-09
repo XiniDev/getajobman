@@ -12,12 +12,15 @@ export async function addJob(formData: FormData) {
   const company_name = formData.get("company_name") as string;
   const job_title = formData.get("job_title") as string;
   const job_url = formData.get("job_url") as string;
+  
+  const status = (formData.get("status") as string) || "saved";
 
   const { error } = await supabase.from("jobs").insert({
     user_id: user.id,
     company_name,
     job_title,
     job_url,
+    status,
   });
 
   if (error) {
@@ -61,12 +64,15 @@ export async function editJob(formData: FormData) {
   const job_title = formData.get("job_title") as string;
   const job_url = formData.get("job_url") as string;
 
+  const status = formData.get("status") as string;
+
   const { error } = await supabase
     .from("jobs")
     .update({ 
       company_name, 
       job_title, 
       job_url,
+      status,
       updated_at: new Date().toISOString()
     })
     .eq("id", id)
