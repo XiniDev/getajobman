@@ -8,6 +8,17 @@ export type Profile = {
   updated_at: string;
 };
 
+export type JobStatus = 
+  | "saved" 
+  | "drafting" 
+  | "applied" 
+  | "assessment" 
+  | "interviewing" 
+  | "offer" 
+  | "rejected" 
+  | "ghosted" 
+  | "withdrawn";
+
 export type Job = {
   id: string;
   user_id: string;
@@ -15,6 +26,7 @@ export type Job = {
   job_title: string;
   job_url: string;
   job_description: string | null;
+  status: JobStatus;
   created_at: string;
   updated_at: string;
 };

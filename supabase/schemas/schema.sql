@@ -1,5 +1,5 @@
 -- ==========================================
--- 1. AUTO-ENABLE RLS FUNCTION & TRIGGER
+-- AUTO-ENABLE RLS FUNCTION & TRIGGER
 -- ==========================================
 CREATE OR REPLACE FUNCTION public.rls_auto_enable()
 RETURNS EVENT_TRIGGER
@@ -38,7 +38,7 @@ WHEN TAG IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
 EXECUTE FUNCTION public.rls_auto_enable();
 
 -- ==========================================
--- 2. CORE TABLES
+-- CORE TABLES
 -- ==========================================
 
 -- PROFILES table
@@ -60,12 +60,28 @@ create table public.jobs (
   job_title text not null,
   job_url text not null,
   job_description text,
+  
+  -- The Status Model
+  status text not null default 'saved' check (
+    status in (
+      'saved', 
+      'drafting', 
+      'applied', 
+      'assessment', 
+      'interviewing', 
+      'offer', 
+      'rejected', 
+      'ghosted', 
+      'withdrawn'
+    )
+  ),
+  
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- ==========================================
--- 3. RLS POLICIES (Security)
+-- RLS POLICIES (Security)
 -- ==========================================
 
 create policy "Users can view own profile" 
@@ -83,7 +99,7 @@ create policy "Users can delete own jobs"
   on jobs for delete using (auth.uid() = user_id);
 
 -- ==========================================
--- 4. AUTOMATION
+-- AUTOMATION
 -- ==========================================
 
 -- Automate Profile Creation Trigger
