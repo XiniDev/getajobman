@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AddJobModal } from "@/components/jobs/add-job-modal";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
-import { DashboardJobQueue } from "@/components/dashboard/dashboard-job-queue"; // Import the new component
+import { DashboardJobQueue } from "@/components/dashboard/dashboard-job-queue";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

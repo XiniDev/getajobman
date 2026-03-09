@@ -1,5 +1,6 @@
 "use client";
 
+import { useJobsRealtime } from "@/hooks/use-jobs-realtime";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Inbox, Settings2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,9 @@ import { JobCard } from "@/components/jobs/job-card";
 import { Job } from "@/lib/types";
 import Link from "next/link";
 
-export function DashboardJobQueue({ jobs }: { jobs: Job[] | null }) {
+export function DashboardJobQueue({ jobs: initialJobs }: { jobs: Job[] | null }) {
+  const jobs = useJobsRealtime(initialJobs);
+
   const recentJobs = jobs?.slice(0, 5) || [];
   const hasMore = (jobs?.length || 0) > 5;
 
