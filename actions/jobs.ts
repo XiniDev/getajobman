@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { extractJobData } from "@/lib/ai/extractor";
+import { waitUntil } from "@vercel/functions";
 
 export async function addJob(formData: FormData) {
   const supabase = await createClient();
@@ -27,23 +28,34 @@ export async function addJob(formData: FormData) {
 
   if (insertError) throw new Error("Failed to initialize job slot");
 
-  processAILogic(newJob.id, job_url, user.id); 
+  waitUntil(
+    processAILogic(newJob.id, job_url)
+  ); 
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-async function processAILogic(jobId: string, url: string, userId: string) {
+async function processAILogic(jobId: string, url: string) {
   const supabase = await createClient();
   let scrapedText = null;
 
   try {
-    const response = await fetch(`https://r.jina.ai/${url}`, { signal: AbortSignal.timeout(10000) });
-    if (response.ok) scrapedText = await response.text();
+    console.log(`Background Task Started: Scraping ${url}...`);
+    const response = await fetch(`https://r.jina.ai/${url}`, { 
+      signal: AbortSignal.timeout(10000) 
+    });
+    
+    if (response.ok) {
+      scrapedText = await response.text();
+    }
 
     if (scrapedText) {
+      console.log("Background Task: Passing to DeepSeek...");
       const aiData = await extractJobData(scrapedText);
+      
       if (aiData) {
+        console.log("Background Task: Updating Database...");
         await supabase
           .from("jobs")
           .update({
@@ -52,12 +64,12 @@ async function processAILogic(jobId: string, url: string, userId: string) {
             job_description: aiData.job_description,
           })
           .eq("id", jobId);
+      } else {
+        await supabase.from("jobs").update({ job_description: scrapedText }).eq("id", jobId);
       }
     }
   } catch (e) {
     console.error("Background AI processing failed", e);
-  } finally {
-    revalidatePath("/dashboard");
   }
 }
 
