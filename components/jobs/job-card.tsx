@@ -54,7 +54,9 @@ const statusConfig: Record<JobStatus, { label: string; variant: "default" | "sec
     variant: "outline", 
     className: "text-muted-foreground" 
   },
-};export function JobCard({ job }: { job: Job }) {
+};
+
+export function JobCard({ job }: { job: Job }) {
   const [viewOpen, setViewOpen] = useState(false);
   
   const isProcessing = job.company_name === "Scraping...";
@@ -100,6 +102,7 @@ const statusConfig: Record<JobStatus, { label: string; variant: "default" | "sec
               href={job.job_url} 
               target="_blank" 
               className="flex items-center gap-1 hover:text-primary transition-colors"
+              onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink className="h-4 w-4" />
               View Listing
@@ -113,12 +116,15 @@ const statusConfig: Record<JobStatus, { label: string; variant: "default" | "sec
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2 relative z-10"
+          onClick={(e) => e.stopPropagation()}
+        >
           {!isProcessing && <EditJobModal job={job} />}
 
           <form action={deleteJob}>
             <input type="hidden" name="id" value={job.id} />
-            <Button type="submit" variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 z-10 relative">
+            <Button type="submit" variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
               <Trash2 className="h-4 w-4" />
             </Button>
           </form>
