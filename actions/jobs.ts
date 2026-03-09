@@ -51,7 +51,7 @@ async function processAILogic(jobId: string, url: string) {
     }
 
     if (scrapedText) {
-      console.log("Background Task: Passing to DeepSeek...");
+      console.log("Background Task: Passing to AI...");
       const aiData = await extractJobData(scrapedText);
       
       if (aiData) {
