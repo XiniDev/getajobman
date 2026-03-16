@@ -8,7 +8,8 @@ import {
   Inbox, 
   FileText, 
   Settings, 
-  Briefcase
+  Briefcase,
+  UserCircle
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
 
@@ -19,6 +20,7 @@ export function Sidebar() {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Job Queue", href: "/dashboard/queue", icon: Inbox },
     { name: "Applications", href: "/dashboard/history", icon: FileText },
+    { name: "Master CV", href: "/dashboard/cv", icon: UserCircle },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
@@ -33,7 +35,7 @@ export function Sidebar() {
       
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Button 
