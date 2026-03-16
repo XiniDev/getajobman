@@ -1,13 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UploadCloud, Plus, Briefcase, GraduationCap, Code, Sparkles } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Briefcase, GraduationCap, Code, Sparkles, Building2 } from "lucide-react";
+import { CVUploader } from "@/components/dashboard/cv/cv-uploader";
 
 export default async function MasterCVPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/auth/login");
+
+  const [
+    { data: work },
+    { data: education },
+    { data: projects },
+    { data: skills }
+  ] = await Promise.all([
+    supabase.from("cv_work_experience").select("*").eq("user_id", user.id),
+    supabase.from("cv_education").select("*").eq("user_id", user.id),
+    supabase.from("cv_projects").select("*").eq("user_id", user.id),
+    supabase.from("cv_skills").select("*").eq("user_id", user.id)
+  ]);
   
   return (
     <div className="w-full max-w-5xl mx-auto p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
@@ -20,30 +34,10 @@ export default async function MasterCVPage() {
         </div>
       </div>
 
-      <Card className="border-primary/50 bg-primary/5 shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            AI Resume Import
-          </CardTitle>
-          <CardDescription>
-            Upload your existing PDF resume. Our AI will automatically extract your experience, education, and skills into the database blocks below.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 flex flex-col items-center justify-center text-center bg-background/50 hover:bg-background/80 transition-colors cursor-pointer">
-            <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
-            <h3 className="font-semibold text-lg">Click to upload PDF</h3>
-            <p className="text-sm text-muted-foreground mt-1 mb-4">
-              Max file size 5MB.
-            </p>
-            <Button>Select File</Button>
-          </div>
-        </CardContent>
-      </Card>
+      <CVUploader />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -51,12 +45,29 @@ export default async function MasterCVPage() {
             </CardTitle>
             <Button variant="ghost" size="icon"><Plus className="h-4 w-4" /></Button>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground italic">No experience added yet.</p>
+          <CardContent className="flex-1">
+            {work && work.length > 0 ? (
+              <div className="space-y-4">
+                {work.map((item) => (
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <h4 className="font-semibold text-foreground">{item.position_title}</h4>
+                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                      <Building2 className="h-3 w-3" />
+                      {item.company_name}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {item.start_date} - {item.is_current ? "Present" : item.end_date}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No experience added yet.</p>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <GraduationCap className="h-4 w-4 text-muted-foreground" />
@@ -64,12 +75,28 @@ export default async function MasterCVPage() {
             </CardTitle>
             <Button variant="ghost" size="icon"><Plus className="h-4 w-4" /></Button>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground italic">No education added yet.</p>
+          <CardContent className="flex-1">
+            {education && education.length > 0 ? (
+              <div className="space-y-4">
+                {education.map((item) => (
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <h4 className="font-semibold text-foreground">{item.institution}</h4>
+                    <p className="text-sm text-foreground/80">
+                      {item.degree} {item.field_of_study ? `in ${item.field_of_study}` : ""}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {item.start_date} - {item.end_date}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No education added yet.</p>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Code className="h-4 w-4 text-muted-foreground" />
@@ -77,12 +104,29 @@ export default async function MasterCVPage() {
             </CardTitle>
             <Button variant="ghost" size="icon"><Plus className="h-4 w-4" /></Button>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground italic">No projects added yet.</p>
+          <CardContent className="flex-1">
+            {projects && projects.length > 0 ? (
+              <div className="space-y-4">
+                {projects.map((item) => (
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <h4 className="font-semibold text-foreground">{item.project_name}</h4>
+                    {item.tech_stack && item.tech_stack.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {item.tech_stack.map((tech: string, i: number) => (
+                          <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0">{tech}</Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No projects added yet.</p>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-muted-foreground" />
@@ -90,8 +134,23 @@ export default async function MasterCVPage() {
             </CardTitle>
             <Button variant="ghost" size="icon"><Plus className="h-4 w-4" /></Button>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground italic">No skills added yet.</p>
+          <CardContent className="flex-1">
+            {skills && skills.length > 0 ? (
+              <div className="space-y-4">
+                {skills.map((item) => (
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wider">{item.category}</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {item.skills && item.skills.map((skill: string, i: number) => (
+                        <Badge key={i} variant="outline" className="bg-primary/5">{skill}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No skills added yet.</p>
+            )}
           </CardContent>
         </Card>
 

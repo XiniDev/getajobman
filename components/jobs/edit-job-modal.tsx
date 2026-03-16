@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Job } from "@/lib/types";
-import { editJob } from "@/actions/jobs";
+import { editJob } from "@/lib/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

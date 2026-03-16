@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Job, JobStatus } from "@/lib/types"; 
-import { deleteJob } from "@/actions/jobs";
+import { deleteJob } from "@/lib/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Building2, ExternalLink, Trash2, FileCheck } from "lucide-react";

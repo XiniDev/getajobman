@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { extractJobData } from "@/lib/ai/extractor";
+import { extractJobData } from "@/lib/ai/job-extractor";
 import { waitUntil } from "@vercel/functions";
 
 export async function addJob(formData: FormData) {

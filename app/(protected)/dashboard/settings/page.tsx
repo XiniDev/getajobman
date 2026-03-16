@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProfileForm } from "@/components/settings/profile-form";
+import { ProfileForm } from "@/components/dashboard/settings/profile-form";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -17,8 +17,6 @@ export default async function SettingsPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
-      
-      {/* Header Section */}
       <div className="pb-4 border-b">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground mt-1">
@@ -39,7 +37,6 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* AI Settings card here later for Master CV text */}
         <Card className="opacity-50 pointer-events-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
