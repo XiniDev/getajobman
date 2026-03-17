@@ -24,6 +24,10 @@ function sortChronologically(arr: any[]) {
     const timeA = parseDate(a.end_date || a.start_date, a.is_current);
     const timeB = parseDate(b.end_date || b.start_date, b.is_current);
 
+    if (timeA === timeB) return 0;
+    if (timeA === Infinity) return -1;
+    if (timeB === Infinity) return 1;
+
     return timeB - timeA;
   });
 }
@@ -80,28 +84,30 @@ export default async function MasterCVPage() {
             {work && work.length > 0 ? (
               <div className="space-y-4">
                 {work.map((item) => (
-                  <WorkModal key={item.id} work={item}>
-                    <div className="border-b last:border-0 pb-3 last:pb-0 group relative cursor-pointer hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
-                      <div className="pr-8">
-                        <h4 className="font-semibold text-foreground">{item.position_title}</h4>
-                        <div className="flex items-center text-sm text-muted-foreground gap-2">
-                          <Building2 className="h-3 w-3" />
-                          {item.company_name}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {item.start_date} - {item.is_current || item.end_date?.toLowerCase() === 'present' ? "Present" : item.end_date}
-                        </p>
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                            {item.description.replace(/[*-]/g, '')}
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <WorkModal work={item}>
+                      <div className="group relative hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
+                        <div className="pr-8">
+                          <h4 className="font-semibold text-foreground">{item.position_title}</h4>
+                          <div className="flex items-center text-sm text-muted-foreground gap-2">
+                            <Building2 className="h-3 w-3" />
+                            {item.company_name}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {item.start_date} - {item.is_current || item.end_date?.toLowerCase() === 'present' ? "Present" : item.end_date}
                           </p>
-                        )}
+                          {item.description && (
+                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                              {item.description.replace(/[*-]/g, '')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-md hover:bg-accent hover:text-accent-foreground text-muted-foreground">
+                          <Pencil className="h-4 w-4" />
+                        </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </WorkModal>
+                    </WorkModal>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -124,29 +130,31 @@ export default async function MasterCVPage() {
             {education && education.length > 0 ? (
               <div className="space-y-4">
                 {education.map((item) => (
-                  <EducationModal key={item.id} education={item}>
-                    <div className="border-b last:border-0 pb-3 last:pb-0 group relative cursor-pointer hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
-                      <div className="pr-8">
-                        <h4 className="font-semibold text-foreground">{item.institution}</h4>
-                        <p className="text-sm text-foreground/80">
-                          {item.degree} {item.field_of_study ? `in ${item.field_of_study}` : ""}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className="text-xs text-muted-foreground">
-                            {item.start_date} - {item.end_date}
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <EducationModal education={item}>
+                      <div className="group relative hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
+                        <div className="pr-8">
+                          <h4 className="font-semibold text-foreground">{item.institution}</h4>
+                          <p className="text-sm text-foreground/80">
+                            {item.degree} {item.field_of_study ? `in ${item.field_of_study}` : ""}
                           </p>
-                          {item.grade && (
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
-                              {item.grade}
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-xs text-muted-foreground">
+                              {item.start_date} - {item.end_date}
+                            </p>
+                            {item.grade && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+                                {item.grade}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-md hover:bg-accent hover:text-accent-foreground text-muted-foreground">
+                          <Pencil className="h-4 w-4" />
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </EducationModal>
+                    </EducationModal>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -169,28 +177,30 @@ export default async function MasterCVPage() {
             {projects && projects.length > 0 ? (
               <div className="space-y-4">
                 {projects.map((item) => (
-                  <ProjectModal key={item.id} project={item}>
-                    <div className="border-b last:border-0 pb-3 last:pb-0 group relative cursor-pointer hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
-                      <div className="pr-8">
-                        <h4 className="font-semibold text-foreground">{item.project_name}</h4>
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground mt-1 mb-2 line-clamp-2">
-                            {item.description.replace(/[*-]/g, '')}
-                          </p>
-                        )}
-                        {item.tech_stack && item.tech_stack.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {item.tech_stack.map((tech: string, i: number) => (
-                              <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0">{tech}</Badge>
-                            ))}
-                          </div>
-                        )}
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <ProjectModal project={item}>
+                      <div className="group relative hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
+                        <div className="pr-8">
+                          <h4 className="font-semibold text-foreground">{item.project_name}</h4>
+                          {item.description && (
+                            <p className="text-sm text-muted-foreground mt-1 mb-2 line-clamp-2">
+                              {item.description.replace(/[*-]/g, '')}
+                            </p>
+                          )}
+                          {item.tech_stack && item.tech_stack.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {item.tech_stack.map((tech: string, i: number) => (
+                                <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0">{tech}</Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-md hover:bg-accent hover:text-accent-foreground text-muted-foreground">
+                          <Pencil className="h-4 w-4" />
+                        </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </ProjectModal>
+                    </ProjectModal>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -213,21 +223,23 @@ export default async function MasterCVPage() {
             {skills && skills.length > 0 ? (
               <div className="space-y-4">
                 {skills.map((item) => (
-                  <SkillModal key={item.id} skillGroup={item}>
-                    <div className="border-b last:border-0 pb-3 last:pb-0 group relative cursor-pointer hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
-                      <div className="pr-8">
-                        <h4 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wider">{item.category}</h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.skills && item.skills.map((skill: string, i: number) => (
-                            <Badge key={i} variant="outline" className="bg-primary/5">{skill}</Badge>
-                          ))}
+                  <div key={item.id} className="border-b last:border-0 pb-3 last:pb-0">
+                    <SkillModal skillGroup={item}>
+                      <div className="group relative hover:bg-muted/50 p-2 -mx-2 rounded-md transition-colors text-left">
+                        <div className="pr-8">
+                          <h4 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wider">{item.category}</h4>
+                          <div className="flex flex-wrap gap-1.5">
+                            {item.skills && item.skills.map((skill: string, i: number) => (
+                              <Badge key={i} variant="outline" className="bg-primary/5">{skill}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-md hover:bg-accent hover:text-accent-foreground text-muted-foreground">
+                          <Pencil className="h-4 w-4" />
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </SkillModal>
+                    </SkillModal>
+                  </div>
                 ))}
               </div>
             ) : (
