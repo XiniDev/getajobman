@@ -38,7 +38,9 @@ export function WorkModal({ children, work }: { children: React.ReactNode, work?
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children}
+        <div className="cursor-pointer">
+          {children}
+        </div>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[500px]">

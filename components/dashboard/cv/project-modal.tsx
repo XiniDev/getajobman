@@ -15,17 +15,30 @@ export function ProjectModal({ children, project }: { children: React.ReactNode,
 
   async function onSubmit(formData: FormData) {
     setLoading(true);
-    if (project?.id) formData.append("id", project.id);
-    await saveProject(formData);
-    setLoading(false);
-    setOpen(false);
+    try {
+      if (project?.id) formData.append("id", project.id);
+      await saveProject(formData);
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <div className="cursor-pointer">
+          {children}
+        </div>
+      </DialogTrigger>
+
       <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader><DialogTitle>{project ? "Edit Project" : "Add Project"}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>{project ? "Edit Project" : "Add Project"}</DialogTitle>
+        </DialogHeader>
+
         <form action={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="project_name">Project Name</Label>
@@ -39,13 +52,30 @@ export function ProjectModal({ children, project }: { children: React.ReactNode,
             <Label htmlFor="description">Description</Label>
             <Textarea id="description" name="description" rows={5} defaultValue={project?.description} />
           </div>
+
           <DialogFooter className="flex justify-between items-center w-full sm:justify-between pt-4 border-t">
             {project ? (
-              <Button type="button" variant="destructive" size="icon" onClick={async () => { const fd = new FormData(); fd.append("id", project.id); await deleteProject(fd); setOpen(false); }}>
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                onClick={async () => {
+                  const fd = new FormData();
+                  fd.append("id", project.id);
+                  await deleteProject(fd);
+                  setOpen(false);
+                }}
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
-            ) : <div />}
-            <Button type="submit" disabled={loading}>{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save Changes</Button>
+            ) : (
+              <div />
+            )}
+
+            <Button type="submit" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
