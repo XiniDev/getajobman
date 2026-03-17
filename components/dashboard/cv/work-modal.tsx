@@ -40,12 +40,12 @@ export function WorkModal({ children, work }: { children: React.ReactNode, work?
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{work ? "Edit Work Experience" : "Add Work Experience"}</DialogTitle>
         </DialogHeader>
-        
+
         <form action={onSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -107,7 +107,7 @@ export function WorkModal({ children, work }: { children: React.ReactNode, work?
             ) : (
               <div />
             )}
-            
+
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
