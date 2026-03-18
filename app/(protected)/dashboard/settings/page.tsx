@@ -43,7 +43,7 @@ export default async function SettingsPage() {
               <span className="text-xl">🤖</span> AI Preferences
             </CardTitle>
             <CardDescription>
-              Upload your Master CV and set your desired tone. (TBA SOON!)
+              Upload your Master CV and set your desired tone. (No need here)
             </CardDescription>
           </CardHeader>
         </Card>
