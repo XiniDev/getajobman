@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ProfileForm } from "@/components/dashboard/settings/profile-form";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Database, Sparkles } from "lucide-react";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -37,18 +40,28 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="opacity-50 pointer-events-none">
+        <Card className="border-primary/20 bg-primary/5 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-xl">🤖</span> AI Preferences
+              <Database className="h-5 w-5 text-primary" /> 
+              Master CV & AI Data
             </CardTitle>
             <CardDescription>
-              Upload your Master CV and set your desired tone. (No need here)
+              Your Master CV has been moved to its own dedicated workspace. Manage your work history, education, and skills there to fuel the AI document generator.
             </CardDescription>
           </CardHeader>
+          <CardFooter>
+            <Button asChild>
+              <Link href="/dashboard/cv" className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Go to Master CV Workspace
+                <ExternalLink className="h-4 w-4 ml-1 opacity-70" />
+              </Link>
+            </Button>
+          </CardFooter>
         </Card>
+        
       </div>
-
     </div>
   );
 }
