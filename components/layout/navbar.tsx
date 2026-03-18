@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { Briefcase } from "lucide-react";
 
 import { AuthButton } from "@/components/auth/auth-button"; 
 import { EnvVarWarning } from "@/components/auth/env-var-warning"; 
@@ -11,8 +12,9 @@ export default function Navbar({ hasEnvVars }: { hasEnvVars: boolean }) {
       <div className="w-full max-w-5xl flex justify-between items-center p-3 text-sm">
 
         <div className="flex items-center font-extrabold text-xl tracking-tighter">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
-            Get A Job Man
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Briefcase className="h-5 w-5 text-primary" />
+            <span>Get A Job Man</span>
           </Link>
         </div>
 
