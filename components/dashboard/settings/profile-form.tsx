@@ -12,9 +12,29 @@ export function ProfileForm({ profile }: { profile: any }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const cleanLinkedin = profile?.linkedin_url?.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, '').replace(/\/$/, '') || "";
+  const cleanGithub = profile?.github_url?.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '') || "";
+  const cleanPortfolio = profile?.portfolio_url?.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '') || "";
+
   async function onSubmit(formData: FormData) {
     setLoading(true);
     setMessage("");
+
+    const linkedin = formData.get("linkedin_url") as string;
+    if (linkedin && !linkedin.includes("linkedin.com")) {
+      formData.set("linkedin_url", `https://linkedin.com/in/${linkedin}`);
+    }
+
+    const github = formData.get("github_url") as string;
+    if (github && !github.includes("github.com")) {
+      formData.set("github_url", `https://github.com/${github}`);
+    }
+
+    const portfolio = formData.get("portfolio_url") as string;
+    if (portfolio && !portfolio.startsWith("http")) {
+      formData.set("portfolio_url", `https://${portfolio}`);
+    }
+
     try {
       await updateProfile(formData);
       setMessage("Profile updated successfully.");
@@ -82,17 +102,53 @@ export function ProfileForm({ profile }: { profile: any }) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="linkedin_url">LinkedIn URL</Label>
-            <Input id="linkedin_url" name="linkedin_url" defaultValue={profile?.linkedin_url || ""} placeholder="linkedin.com/in/..." />
+            <Label htmlFor="linkedin_url">LinkedIn</Label>
+            <div className="flex shadow-sm rounded-md">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm whitespace-nowrap">
+                linkedin.com/in/
+              </span>
+              <Input 
+                id="linkedin_url" 
+                name="linkedin_url" 
+                defaultValue={cleanLinkedin} 
+                className="rounded-l-none focus-visible:z-10" 
+                placeholder="username" 
+              />
+            </div>
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="github_url">GitHub URL</Label>
-            <Input id="github_url" name="github_url" defaultValue={profile?.github_url || ""} placeholder="github.com/..." />
+            <Label htmlFor="github_url">GitHub</Label>
+            <div className="flex shadow-sm rounded-md">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm whitespace-nowrap">
+                github.com/
+              </span>
+              <Input 
+                id="github_url" 
+                name="github_url" 
+                defaultValue={cleanGithub} 
+                className="rounded-l-none focus-visible:z-10" 
+                placeholder="username" 
+              />
+            </div>
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="portfolio_url">Portfolio URL</Label>
-            <Input id="portfolio_url" name="portfolio_url" defaultValue={profile?.portfolio_url || ""} placeholder="yourwebsite.com" />
+            <Label htmlFor="portfolio_url">Portfolio</Label>
+            <div className="flex shadow-sm rounded-md">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm whitespace-nowrap">
+                https://
+              </span>
+              <Input 
+                id="portfolio_url" 
+                name="portfolio_url" 
+                defaultValue={cleanPortfolio} 
+                className="rounded-l-none focus-visible:z-10" 
+                placeholder="yourwebsite.com" 
+              />
+            </div>
           </div>
+
         </div>
       </div>
 
