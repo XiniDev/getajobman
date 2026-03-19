@@ -12,14 +12,34 @@ export function ProfileForm({ profile }: { profile: any }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const cleanLinkedin = profile?.linkedin_url?.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, '').replace(/\/$/, '') || "";
-  const cleanGithub = profile?.github_url?.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '') || "";
-  const cleanPortfolio = profile?.portfolio_url?.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '') || "";
+  const cleanLinkedin = profile?.linkedin_url?.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//i, '').replace(/\/$/, '') || "";
+  const cleanGithub = profile?.github_url?.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').replace(/\/$/, '') || "";
+  const cleanPortfolio = profile?.portfolio_url?.replace(/^(https?:\/\/)?(www\.)?/i, '').replace(/\/$/, '') || "";
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>, type: 'linkedin' | 'github' | 'portfolio') => {
+    const pastedText = e.clipboardData.getData('text');
+    let cleaned = pastedText;
+
+    if (type === 'linkedin') {
+      cleaned = pastedText.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//i, '').replace(/\/$/, '');
+    } else if (type === 'github') {
+      cleaned = pastedText.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').replace(/\/$/, '');
+    } else if (type === 'portfolio') {
+      cleaned = pastedText.replace(/^(https?:\/\/)?(www\.)?/i, '').replace(/\/$/, '');
+    }
+
+    if (cleaned !== pastedText) {
+      e.preventDefault();
+      const input = e.currentTarget;
+      input.setRangeText(cleaned, input.selectionStart || 0, input.selectionEnd || 0, 'end');
+    }
+  };
 
   async function onSubmit(formData: FormData) {
     setLoading(true);
     setMessage("");
 
+    // Rebuild the full URLs before sending to the database
     const linkedin = formData.get("linkedin_url") as string;
     if (linkedin && !linkedin.includes("linkedin.com")) {
       formData.set("linkedin_url", `https://linkedin.com/in/${linkedin}`);
@@ -101,6 +121,7 @@ export function ProfileForm({ profile }: { profile: any }) {
           <LinkIcon className="h-4 w-4" /> Professional Links
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
           <div className="space-y-2">
             <Label htmlFor="linkedin_url">LinkedIn</Label>
             <div className="flex shadow-sm rounded-md">
@@ -111,6 +132,7 @@ export function ProfileForm({ profile }: { profile: any }) {
                 id="linkedin_url" 
                 name="linkedin_url" 
                 defaultValue={cleanLinkedin} 
+                onPaste={(e) => handlePaste(e, 'linkedin')}
                 className="rounded-l-none focus-visible:z-10" 
                 placeholder="username" 
               />
@@ -127,6 +149,7 @@ export function ProfileForm({ profile }: { profile: any }) {
                 id="github_url" 
                 name="github_url" 
                 defaultValue={cleanGithub} 
+                onPaste={(e) => handlePaste(e, 'github')}
                 className="rounded-l-none focus-visible:z-10" 
                 placeholder="username" 
               />
@@ -143,6 +166,7 @@ export function ProfileForm({ profile }: { profile: any }) {
                 id="portfolio_url" 
                 name="portfolio_url" 
                 defaultValue={cleanPortfolio} 
+                onPaste={(e) => handlePaste(e, 'portfolio')}
                 className="rounded-l-none focus-visible:z-10" 
                 placeholder="yourwebsite.com" 
               />
