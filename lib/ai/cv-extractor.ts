@@ -65,6 +65,7 @@ export const extractCVData = async (rawText: string) => {
   2. If a field is not found in the resume, return null (or an empty array for lists).
   3. Format dates as clean text (e.g., "Jan 2020", "Present").
   4. Ensure descriptions are nicely formatted with Markdown bullet points where appropriate.
+  5. URL FORMATTING: For linkedin_url, github_url, and portfolio_url, ALWAYS convert them into full, valid HTTPS URLs (e.g., "https://linkedin.com/in/username") even if the resume only lists the handle or a partial link.
 
   You MUST return ONLY a JSON object with this EXACT structure:
   {
