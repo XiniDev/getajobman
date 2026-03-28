@@ -69,6 +69,8 @@ create table public.jobs (
   job_title text not null,
   job_url text not null,
   job_description text,
+  tailored_resume text,
+  cover_letter text,
   
   status text not null default 'saved' check (
     status in (
