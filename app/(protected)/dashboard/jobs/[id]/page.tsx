@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { WorkspaceClient } from "@/components/dashboard/jobs/workspace-client";
+import { WorkspaceClient } from "@/components/jobs/workspace-client";
 
 export default async function JobWorkspacePage({ params }: { params: { id: string } }) {
   const supabase = await createClient();

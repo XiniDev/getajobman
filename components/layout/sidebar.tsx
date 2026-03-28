@@ -5,10 +5,9 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
-  Inbox, 
+  Briefcase,
   FileText, 
   Settings, 
-  Briefcase,
   UserCircle
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -18,7 +17,7 @@ export function Sidebar() {
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Job Queue", href: "/dashboard/queue", icon: Inbox },
+    { name: "Job Queue", href: "/dashboard/jobs", icon: Briefcase }, 
     { name: "Applications", href: "/dashboard/history", icon: FileText },
     { name: "Master CV", href: "/dashboard/cv", icon: UserCircle },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
