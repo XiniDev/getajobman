@@ -14,8 +14,7 @@ export default async function JobWorkspacePage({ params }: { params: { id: strin
     .eq("user_id", user.id)
     .single();
 
-    // redirect happens need fix
-  if (!job) return redirect("/dashboard/queue");
+  if (!job) return redirect("/dashboard/jobs");
 
   return <WorkspaceClient job={job} />;
 }
