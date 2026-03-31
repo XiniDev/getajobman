@@ -7,22 +7,52 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, Building2, ExternalLink, Briefcase } from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Loader2, Sparkles, Building2, ExternalLink, Briefcase, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export function WorkspaceClient({ job }: { job: any }) {
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isRegenOpen, setIsRegenOpen] = useState(false);
+  const [regenResume, setRegenResume] = useState(true);
+  const [regenCoverLetter, setRegenCoverLetter] = useState(true);
 
   const hasDocs = job.cover_letter || job.tailored_resume;
 
-  const handleGenerate = async () => {
+  const handleInitialGenerate = async () => {
     setIsGenerating(true);
     try {
-      await generateApplicationDocs(job.id);
+      await generateApplicationDocs(job.id, { resume: true, coverLetter: true });
+      toast.success("Documents generated successfully!");
       router.refresh();
-    } catch (error) {
-      console.error("Generation failed:", error);
+    } catch (error: any) {
+      toast.error("Generation failed", { description: error.message });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleRegenerateSubmit = async () => {
+    setIsRegenOpen(false);
+    setIsGenerating(true);
+    try {
+      await generateApplicationDocs(job.id, { resume: regenResume, coverLetter: regenCoverLetter });
+      toast.success("Selected documents regenerated!");
+      router.refresh();
+    } catch (error: any) {
+      toast.error("Regeneration failed", { description: error.message });
     } finally {
       setIsGenerating(false);
     }
@@ -62,27 +92,93 @@ export function WorkspaceClient({ job }: { job: any }) {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col h-full overflow-hidden md:col-span-2">
+        <Card className="flex flex-col h-full overflow-hidden md:col-span-2 relative">
+          {isGenerating && (
+            <div className="absolute inset-0 z-50 bg-background/50 backdrop-blur-sm flex flex-col items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+              <p className="font-medium text-foreground animate-pulse">Generating Application Documents...</p>
+              <p className="text-xs text-muted-foreground mt-1">This usually takes about 15 seconds.</p>
+            </div>
+          )}
+
           {hasDocs ? (
             <Tabs defaultValue="resume" className="flex flex-col h-full">
-              <CardHeader className="bg-muted/30 pb-4 shrink-0 flex flex-row items-center justify-between">
+              <CardHeader className="bg-muted/30 pb-4 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <TabsList>
                   <TabsTrigger value="resume">Tailored Resume</TabsTrigger>
                   <TabsTrigger value="cover_letter">Cover Letter</TabsTrigger>
                 </TabsList>
-                <Button size="sm" variant="secondary">Save Manual Edits</Button>
+                
+                <div className="flex items-center gap-2">
+                  <Dialog open={isRegenOpen} onOpenChange={setIsRegenOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="outline" disabled={isGenerating} className="border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20">
+                        <RefreshCw className="h-3.5 w-3.5 mr-2" />
+                        Regenerate
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Sparkles className="h-5 w-5 text-violet-600" />
+                          Regenerate Documents
+                        </DialogTitle>
+                        <DialogDescription>
+                          Select which documents to rewrite. <strong>This will permanently overwrite</strong> your current generated text and manual edits.
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <div className="space-y-6 py-4">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="space-y-0.5">
+                            <Label className="text-base">Tailored Resume</Label>
+                            <p className="text-xs text-muted-foreground">Re-analyze master CV and job description.</p>
+                          </div>
+                          <Switch checked={regenResume} onCheckedChange={setRegenResume} />
+                        </div>
+                        
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="space-y-0.5">
+                            <Label className="text-base">Cover Letter</Label>
+                            <p className="text-xs text-muted-foreground">Draft a new targeted cover letter.</p>
+                          </div>
+                          <Switch checked={regenCoverLetter} onCheckedChange={setRegenCoverLetter} />
+                        </div>
+                      </div>
+
+                      <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsRegenOpen(false)}>Cancel</Button>
+                        <Button 
+                          onClick={handleRegenerateSubmit} 
+                          disabled={!regenResume && !regenCoverLetter}
+                          className="bg-violet-600 hover:bg-violet-700 text-white"
+                        >
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Regenerate Selected
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Button size="sm" variant="secondary">Save Manual Edits</Button>
+                </div>
               </CardHeader>
+
               <CardContent className="flex-1 p-0 overflow-hidden">
                 <TabsContent value="resume" className="h-full m-0 data-[state=active]:flex flex-col">
                   <Textarea 
+                    key={`resume-${job.tailored_resume?.length || 0}`}
                     defaultValue={job.tailored_resume} 
                     className="flex-1 resize-none border-0 focus-visible:ring-0 p-6 font-mono text-sm h-full"
+                    placeholder="No resume generated yet."
                   />
                 </TabsContent>
                 <TabsContent value="cover_letter" className="h-full m-0 data-[state=active]:flex flex-col">
                   <Textarea 
+                    key={`cl-${job.cover_letter?.length || 0}`}
                     defaultValue={job.cover_letter} 
                     className="flex-1 resize-none border-0 focus-visible:ring-0 p-6 font-mono text-sm h-full"
+                    placeholder="No cover letter generated yet."
                   />
                 </TabsContent>
               </CardContent>
@@ -96,23 +192,13 @@ export function WorkspaceClient({ job }: { job: any }) {
               <CardDescription className="max-w-md">
                 The AI will analyze your Master CV and cross-reference it with the Job Description to write a perfectly tailored Resume and Cover Letter.
               </CardDescription>
-              <Button onClick={handleGenerate} disabled={isGenerating} size="lg" className="mt-4">
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generating Documents... (This takes about 15s)
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Generate with AI
-                  </>
-                )}
+              <Button onClick={handleInitialGenerate} disabled={isGenerating} size="lg" className="mt-4 bg-violet-600 hover:bg-violet-700 text-white">
+                <Sparkles className="mr-2 h-5 w-5" />
+                Generate Documents
               </Button>
             </div>
           )}
         </Card>
-
       </div>
     </div>
   );

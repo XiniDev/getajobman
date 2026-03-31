@@ -10,13 +10,16 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
 
-export async function generateApplicationDocs(jobId: string) {
+export async function generateApplicationDocs(
+  jobId: string, 
+  options: { resume?: boolean; coverLetter?: boolean } = { resume: true, coverLetter: true }
+) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  if (!user) return { success: false, error: "Unauthorized" };
 
   const { data: job } = await supabase.from("jobs").select("*").eq("id", jobId).single();
-  if (!job) throw new Error("Job not found");
+  if (!job) return { success: false, error: "Job not found" };
 
   const [
     { data: profile },
@@ -34,6 +37,14 @@ export async function generateApplicationDocs(jobId: string) {
 
   const masterCV = { profile, work, education, projects, skills };
 
+  const tasks = [];
+  if (options.coverLetter) {
+    tasks.push("- Write a highly tailored, professional Cover Letter for this specific role. Use a modern, engaging tone. Avoid generic buzzwords.");
+  }
+  if (options.resume) {
+    tasks.push("- Write a Tailored Resume in standard Markdown format.\n  - Filter and select ONLY the most relevant work experience and projects.\n  - Rewrite my bullet points to align exactly with the keywords and requirements in the job description.\n  - Include my contact info (from the profile) at the very top.\n  - Structure it clearly with standard markdown headers (e.g., ## Experience, ## Education).");
+  }
+
   const prompt = `
     You are an elite career coach and executive resume writer. 
     I am providing you with my complete Master CV data (in JSON) and a Job Description.
@@ -45,33 +56,33 @@ export async function generateApplicationDocs(jobId: string) {
     ${JSON.stringify(masterCV, null, 2)}
     
     YOUR TASK:
-    1. Write a highly tailored, professional Cover Letter for this specific role. Use a modern, engaging tone. Avoid generic buzzwords.
-    2. Write a Tailored Resume in standard Markdown format. 
-       - Filter and select ONLY the most relevant work experience and projects.
-       - Rewrite my bullet points to align exactly with the keywords and requirements in the job description.
-       - Include my contact info (from the profile) at the very top.
-       - Structure it clearly with standard markdown headers (e.g., ## Experience, ## Education).
+    ${tasks.join("\n")}
 
     Return the output strictly matching the JSON schema provided.
   `;
 
+  const schemaShape: Record<string, any> = {};
+  if (options.coverLetter) {
+    schemaShape.cover_letter = z.string().describe("The generated cover letter formatted in Markdown");
+  }
+  if (options.resume) {
+    schemaShape.tailored_resume = z.string().describe("The generated tailored resume formatted in Markdown");
+  }
+
   try {
     const { object } = await generateObject({
       model: openrouter('deepseek/deepseek-v3.2'),
-      schema: z.object({
-        cover_letter: z.string().describe("The generated cover letter formatted in Markdown"),
-        tailored_resume: z.string().describe("The generated tailored resume formatted in Markdown")
-      }),
+      schema: z.object(schemaShape),
       prompt: prompt,
     });
 
+    const updatePayload: any = { status: 'drafting' };
+    if (options.coverLetter && object.cover_letter) updatePayload.cover_letter = object.cover_letter;
+    if (options.resume && object.tailored_resume) updatePayload.tailored_resume = object.tailored_resume;
+
     const { error } = await supabase
       .from("jobs")
-      .update({
-        cover_letter: object.cover_letter,
-        tailored_resume: object.tailored_resume,
-        status: 'drafting'
-      })
+      .update(updatePayload)
       .eq("id", jobId)
       .eq("user_id", user.id);
 
