@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Sparkles, Building2, ExternalLink, Briefcase, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 export function WorkspaceClient({ job }: { job: any }) {
   const router = useRouter();
@@ -86,8 +87,10 @@ export function WorkspaceClient({ job }: { job: any }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto p-0">
-            <div className="p-6 text-sm text-foreground/80 whitespace-pre-wrap font-mono">
-              {job.job_description || "No description provided."}
+            <div className="p-6 prose prose-sm dark:prose-invert max-w-none text-foreground/80">
+              <ReactMarkdown>
+                {job.job_description || "No description provided."}
+              </ReactMarkdown>
             </div>
           </CardContent>
         </Card>
