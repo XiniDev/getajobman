@@ -11,8 +11,9 @@ import {
   UserCircle
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { Suspense } from "react";
 
-export function Sidebar() {
+function SidebarNav() {
   const pathname = usePathname();
 
   const navItems = [
@@ -24,6 +25,32 @@ export function Sidebar() {
   ];
 
   return (
+    <nav className="flex-1 p-4 space-y-2">
+      {navItems.map((item) => {
+        const isActive = item.href === "/dashboard" 
+          ? pathname === "/dashboard"
+          : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+        return (
+          <Button 
+            key={item.name}
+            variant={isActive ? "secondary" : "ghost"} 
+            className={`w-full justify-start ${!isActive ? "text-muted-foreground hover:text-foreground" : ""}`}
+            asChild
+          >
+            <Link href={item.href}>
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.name}
+            </Link>
+          </Button>
+        );
+      })}
+    </nav>
+  );
+}
+
+export function Sidebar() {
+  return (
     <aside className="w-64 border-r bg-muted/20 h-screen hidden md:flex flex-col">
       <div className="h-16 flex items-center px-6 font-extrabold text-xl tracking-tighter border-b">
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -31,28 +58,9 @@ export function Sidebar() {
           <span>Get A Job Man</span>
         </Link>
       </div>
-      
-      <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => {
-          const isActive = item.href === "/dashboard" 
-            ? pathname === "/dashboard"
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-          return (
-            <Button 
-              key={item.name}
-              variant={isActive ? "secondary" : "ghost"} 
-              className={`w-full justify-start ${!isActive && "text-muted-foreground hover:text-foreground"}`}
-              asChild
-            >
-              <Link href={item.href}>
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.name}
-              </Link>
-            </Button>
-          );
-        })}
-      </nav>
+      <Suspense fallback={<nav className="flex-1 p-4 space-y-2" />}>
+        <SidebarNav />
+      </Suspense>
 
       <div className="p-4 border-t">
         <LogoutButton />
