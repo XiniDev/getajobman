@@ -172,7 +172,7 @@ export function WorkspaceClient({ job }: { job: any }) {
                 <div className="flex items-center gap-2">
                   <Dialog open={isRegenOpen} onOpenChange={setIsRegenOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" variant="outline" disabled={isGenerating} className="border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20">
+                      <Button size="sm" variant="outline" disabled={isGenerating} className="border-primary/20 text-primary hover:bg-primary/10">
                         <RefreshCw className="h-3.5 w-3.5 mr-2" />
                         Regenerate
                       </Button>
@@ -180,7 +180,7 @@ export function WorkspaceClient({ job }: { job: any }) {
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5 text-violet-600" />
+                          <Sparkles className="h-5 w-5 text-primary" />
                           Regenerate Documents
                         </DialogTitle>
                         <DialogDescription>
@@ -211,7 +211,6 @@ export function WorkspaceClient({ job }: { job: any }) {
                         <Button 
                           onClick={handleRegenerateSubmit} 
                           disabled={!regenResume && !regenCoverLetter}
-                          className="bg-violet-600 hover:bg-violet-700 text-white"
                         >
                           <Sparkles className="h-4 w-4 mr-2" />
                           Regenerate Selected
@@ -274,7 +273,7 @@ export function WorkspaceClient({ job }: { job: any }) {
               <CardDescription className="max-w-md">
                 The AI will analyze your Master CV and cross-reference it with the Job Description to write a perfectly tailored Resume and Cover Letter.
               </CardDescription>
-              <Button onClick={handleInitialGenerate} disabled={isGenerating} size="lg" className="mt-4 bg-violet-600 hover:bg-violet-700 text-white">
+              <Button onClick={handleInitialGenerate} disabled={isGenerating} size="lg" className="mt-4">
                 <Sparkles className="mr-2 h-5 w-5" />
                 Generate Documents
               </Button>
