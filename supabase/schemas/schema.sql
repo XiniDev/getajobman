@@ -69,6 +69,13 @@ create table public.jobs (
   job_title text not null,
   job_url text not null,
   job_description text,
+  salary_range text,
+  location text,
+  work_model text,
+  employment_type text,
+  experience_level text,
+  industry text,
+  required_tech_stack text[] default '{}',
   tailored_resume text,
   cover_letter text,
   
