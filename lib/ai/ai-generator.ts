@@ -42,12 +42,19 @@ export async function generateApplicationDocs(
     tasks.push("- Write a highly tailored, professional Cover Letter for this specific role. Use a modern, engaging tone. Avoid generic buzzwords.");
   }
   if (options.resume) {
-    tasks.push("- Write a Tailored Resume in standard Markdown format.\n  - Filter and select ONLY the most relevant work experience and projects.\n  - Rewrite my bullet points to align exactly with the keywords and requirements in the job description.\n  - Include my contact info (from the profile) at the very top.\n  - Structure it clearly with standard markdown headers (e.g., ## Experience, ## Education).");
+    tasks.push("- Write a Tailored Resume in standard Markdown format.\n  - Filter and select ONLY the most relevant work experience and projects.\n  - Rewrite my bullet points to align exactly with the keywords, required tech stack, and experience level of the job.\n  - Include my contact info (from the profile) at the very top.\n  - Structure it clearly with standard markdown headers (e.g., ## Experience, ## Education).");
   }
 
   const prompt = `
     You are an elite career coach and executive resume writer. 
     I am providing you with my complete Master CV data (in JSON) and a Job Description.
+    
+    JOB METADATA (CRITICAL TARGETS):
+    - Job Title: ${job.job_title}
+    - Company: ${job.company_name}
+    - Industry: ${job.industry || 'Not specified'}
+    - Target Seniority/Level: ${job.experience_level || 'Not specified'}
+    - Required Tech Stack: ${job.required_tech_stack && job.required_tech_stack.length > 0 ? job.required_tech_stack.join(", ") : 'Not specified'}
     
     JOB DESCRIPTION:
     ${job.job_description}
@@ -89,7 +96,7 @@ export async function generateApplicationDocs(
     if (error) throw error;
 
     revalidatePath(`/dashboard`);
-    revalidatePath(`/dashboard/queue`);
+    revalidatePath(`/dashboard/jobs`);
     
     return { success: true };
 
