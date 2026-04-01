@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { generateApplicationDocs } from "@/lib/ai/ai-generator";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { 
   Loader2, Sparkles, Building2, ExternalLink, Briefcase, RefreshCw,
-  MapPin, Banknote, Laptop, Briefcase as BriefcaseIcon 
+  MapPin, Banknote, Laptop, Briefcase as BriefcaseIcon, Eye, PencilLine
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -33,6 +33,15 @@ export function WorkspaceClient({ job }: { job: any }) {
   const [isRegenOpen, setIsRegenOpen] = useState(false);
   const [regenResume, setRegenResume] = useState(true);
   const [regenCoverLetter, setRegenCoverLetter] = useState(true);
+
+  const [resumeText, setResumeText] = useState(job.tailored_resume || "");
+  const [coverLetterText, setCoverLetterText] = useState(job.cover_letter || "");
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+
+  useEffect(() => {
+    setResumeText(job.tailored_resume || "");
+    setCoverLetterText(job.cover_letter || "");
+  }, [job.tailored_resume, job.cover_letter]);
 
   const hasDocs = job.cover_letter || job.tailored_resume;
 
@@ -83,7 +92,6 @@ export function WorkspaceClient({ job }: { job: any }) {
             </div>
           </div>
 
-          {/* METADATA BADGE ROW */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
             {job.location && (
               <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{job.location}</span>
@@ -218,17 +226,39 @@ export function WorkspaceClient({ job }: { job: any }) {
 
               <CardContent className="flex-1 p-0 overflow-hidden">
                 <TabsContent value="resume" className="h-full m-0 data-[state=active]:flex flex-col">
-                  <Textarea 
-                    key={`resume-${job.tailored_resume?.length || 0}`}
-                    defaultValue={job.tailored_resume} 
-                    className="flex-1 resize-none border-0 focus-visible:ring-0 p-6 font-mono text-sm h-full"
-                    placeholder="No resume generated yet."
-                  />
+                  <div className="flex justify-end p-2 border-b bg-muted/10 shrink-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setIsPreviewMode(!isPreviewMode)}
+                      className="h-8 text-xs font-medium"
+                    >
+                      {isPreviewMode ? (
+                        <><PencilLine className="h-3.5 w-3.5 mr-1.5" /> Edit Markdown</>
+                      ) : (
+                        <><Eye className="h-3.5 w-3.5 mr-1.5" /> Preview CV</>
+                      )}
+                    </Button>
+                  </div>
+
+                  {isPreviewMode ? (
+                    <div className="flex-1 overflow-y-auto p-6 prose prose-sm dark:prose-invert max-w-none bg-muted/5">
+                      <ReactMarkdown>{resumeText}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <Textarea 
+                      value={resumeText} 
+                      onChange={(e) => setResumeText(e.target.value)}
+                      className="flex-1 resize-none border-0 focus-visible:ring-0 p-6 font-mono text-sm h-full"
+                      placeholder="No resume generated yet."
+                    />
+                  )}
                 </TabsContent>
+                
                 <TabsContent value="cover_letter" className="h-full m-0 data-[state=active]:flex flex-col">
                   <Textarea 
-                    key={`cl-${job.cover_letter?.length || 0}`}
-                    defaultValue={job.cover_letter} 
+                    value={coverLetterText}
+                    onChange={(e) => setCoverLetterText(e.target.value)}
                     className="flex-1 resize-none border-0 focus-visible:ring-0 p-6 font-mono text-sm h-full"
                     placeholder="No cover letter generated yet."
                   />
