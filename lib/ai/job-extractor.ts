@@ -30,8 +30,11 @@ export const extractJobData = async (rawText: string) => {
   3. FORMATTING: Use clean Markdown (bolding for labels, bullet points for lists, and headers for sections).
   4. STRUCTURED METADATA: Extract specific data points into their dedicated fields below. If a data point is not explicitly mentioned, return null. DO NOT guess.
      - salary_range: Extract the raw numbers or range (e.g., "$100k - $150k", "£50,000 + Equity").
+     - location: Extract the city, state, or country (e.g., "San Francisco, CA", "London, UK").
      - work_model: Categorize strictly as "Remote", "Hybrid", or "On-site" if mentioned.
      - employment_type: Categorize as "Full-time", "Contract", "Part-time", or "Internship".
+     - experience_level: Extract the seniority (e.g., "Entry-level", "Mid-level", "Senior", "Staff").
+     - industry: Extract the company's industry if explicitly mentioned (e.g., "Fintech", "Healthcare").
      - required_tech_stack: Extract an array of specific software, languages, or frameworks mentioned (e.g., ["React", "TypeScript", "PostgreSQL"]). Do not include generic soft skills here.
 
   You MUST return ONLY a valid JSON object with exactly these keys:
