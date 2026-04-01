@@ -27,6 +27,18 @@ export type Job = {
   job_url: string;
   job_description: string | null;
   status: JobStatus;
+
+  salary_range?: string | null;
+  location?: string | null;
+  work_model?: string | null;
+  employment_type?: string | null;
+  experience_level?: string | null;
+  industry?: string | null;
+  required_tech_stack?: string[];
+
+  tailored_resume?: string | null;
+  cover_letter?: string | null;
+
   created_at: string;
   updated_at: string;
 };
