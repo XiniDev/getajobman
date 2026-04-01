@@ -42,8 +42,8 @@ export async function generateApplicationDocs(
   const schemaShape: Record<string, any> = {};
 
   if (options.coverLetter) {
-    tasks.push("- Write a highly tailored, professional Cover Letter for this specific role. Use a modern, engaging tone. Avoid generic buzzwords.");
-    jsonKeys.push(`"cover_letter": "The generated cover letter formatted in Markdown"`);
+    tasks.push("- Write a highly tailored, professional Cover Letter for this specific role. FORMAT IT AS A PLAIN-TEXT EMAIL. Do NOT use any Markdown formatting (no asterisks, no bolding, no hash headers). Start with a standard email greeting (e.g., 'Hi [Company Name] Team,' or 'Dear Hiring Manager,'). Use a modern, engaging tone.");
+    jsonKeys.push(`"cover_letter": "The plain-text email cover letter (strictly NO Markdown)"`);
     schemaShape.cover_letter = z.string();
   }
   
