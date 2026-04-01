@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateObject } from 'ai';
+import { streamText } from 'ai';
 import { z } from 'zod';
 
 const openrouter = createOpenRouter({
@@ -38,12 +38,22 @@ export async function generateApplicationDocs(
   const masterCV = { profile, work, education, projects, skills };
 
   const tasks = [];
+  const jsonKeys = [];
+  const schemaShape: Record<string, any> = {};
+
   if (options.coverLetter) {
     tasks.push("- Write a highly tailored, professional Cover Letter for this specific role. Use a modern, engaging tone. Avoid generic buzzwords.");
+    jsonKeys.push(`"cover_letter": "The generated cover letter formatted in Markdown"`);
+    schemaShape.cover_letter = z.string();
   }
+  
   if (options.resume) {
     tasks.push("- Write a Tailored Resume in standard Markdown format.\n  - Filter and select ONLY the most relevant work experience and projects.\n  - Rewrite my bullet points to align exactly with the keywords, required tech stack, and experience level of the job.\n  - Include my contact info (from the profile) at the very top.\n  - Structure it clearly with standard markdown headers (e.g., ## Experience, ## Education).");
+    jsonKeys.push(`"tailored_resume": "The generated tailored resume formatted in Markdown"`);
+    schemaShape.tailored_resume = z.string();
   }
+
+  const generationSchema = z.object(schemaShape);
 
   const prompt = `
     You are an elite career coach and executive resume writer. 
@@ -65,27 +75,40 @@ export async function generateApplicationDocs(
     YOUR TASK:
     ${tasks.join("\n")}
 
-    Return the output strictly matching the JSON schema provided.
+    CRITICAL OUTPUT RULES:
+    You MUST return ONLY a valid JSON object with exactly these keys:
+    {
+      ${jsonKeys.join(",\n      ")}
+    }
+    
+    Do not include any markdown formatting like \`\`\`json. Return just the raw JSON object.
   `;
 
-  const schemaShape: Record<string, any> = {};
-  if (options.coverLetter) {
-    schemaShape.cover_letter = z.string().describe("The generated cover letter formatted in Markdown");
-  }
-  if (options.resume) {
-    schemaShape.tailored_resume = z.string().describe("The generated tailored resume formatted in Markdown");
-  }
-
   try {
-    const { object } = await generateObject({
+    const response = await streamText({
       model: openrouter('deepseek/deepseek-v3.2'),
-      schema: z.object(schemaShape),
       prompt: prompt,
     });
 
+    await response.consumeStream();
+    const rawOutput = await response.text;
+
+    const cleanJsonString = rawOutput
+      .replace(/```json/gi, '')
+      .replace(/```/g, '')
+      .trim();
+
+    const parsedData = JSON.parse(cleanJsonString);
+    const validatedData = generationSchema.safeParse(parsedData);
+
+    if (!validatedData.success) {
+      console.error("Zod Validation Failed! AI returned incorrect schema:", validatedData.error);
+      return { success: false, error: "AI returned invalid format." };
+    }
+
     const updatePayload: any = { status: 'drafting' };
-    if (options.coverLetter && object.cover_letter) updatePayload.cover_letter = object.cover_letter;
-    if (options.resume && object.tailored_resume) updatePayload.tailored_resume = object.tailored_resume;
+    if (options.coverLetter && validatedData.data.cover_letter) updatePayload.cover_letter = validatedData.data.cover_letter;
+    if (options.resume && validatedData.data.tailored_resume) updatePayload.tailored_resume = validatedData.data.tailored_resume;
 
     const { error } = await supabase
       .from("jobs")
