@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, 
   DialogContent, 
@@ -18,7 +19,10 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Loader2, Sparkles, Building2, ExternalLink, Briefcase, RefreshCw } from "lucide-react";
+import { 
+  Loader2, Sparkles, Building2, ExternalLink, Briefcase, RefreshCw,
+  MapPin, Banknote, Laptop, Briefcase as BriefcaseIcon 
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -61,17 +65,49 @@ export function WorkspaceClient({ job }: { job: any }) {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in duration-500 h-[calc(100vh-4rem)] flex flex-col">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 shrink-0">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{job.job_title}</h1>
-          <div className="flex items-center gap-2 text-muted-foreground mt-1">
-            <Building2 className="h-4 w-4" />
-            <span>{job.company_name}</span>
-            <span>•</span>
-            <span className="capitalize">{job.status}</span>
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6 shrink-0">
+        <div className="space-y-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{job.job_title}</h1>
+            <div className="flex items-center gap-2 text-muted-foreground mt-1 text-sm md:text-base">
+              <Building2 className="h-4 w-4" />
+              <span className="font-medium text-foreground/90">{job.company_name}</span>
+              <span>•</span>
+              <span className="capitalize">{job.status}</span>
+              {job.industry && (
+                <>
+                  <span>•</span>
+                  <span>{job.industry}</span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* METADATA BADGE ROW */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            {job.location && (
+              <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" />{job.location}</span>
+            )}
+            {job.salary_range && (
+              <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                <Banknote className="h-4 w-4" />{job.salary_range}
+              </span>
+            )}
+            {job.work_model && (
+              <span className="flex items-center gap-1.5"><Laptop className="h-4 w-4" />{job.work_model}</span>
+            )}
+            {job.employment_type && (
+              <span className="flex items-center gap-1.5"><BriefcaseIcon className="h-4 w-4" />{job.employment_type}</span>
+            )}
+            {job.experience_level && (
+              <span className="flex items-center gap-1.5 border-l pl-4 ml-1 border-muted-foreground/30">
+                Level: <span className="font-medium text-foreground/80">{job.experience_level}</span>
+              </span>
+            )}
           </div>
         </div>
-        <Button variant="outline" asChild>
+
+        <Button variant="outline" asChild className="shrink-0">
           <Link href={job.job_url} target="_blank" className="flex items-center gap-2">
             View Original Posting <ExternalLink className="h-4 w-4" />
           </Link>
@@ -86,7 +122,20 @@ export function WorkspaceClient({ job }: { job: any }) {
               Job Description
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto p-0">
+          <CardContent className="flex-1 overflow-y-auto p-0 flex flex-col">
+            {job.required_tech_stack && job.required_tech_stack.length > 0 && (
+              <div className="p-4 border-b bg-muted/10 shrink-0">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Required Tech Stack</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {job.required_tech_stack.map((tech: string, i: number) => (
+                    <Badge key={i} variant="secondary" className="font-normal bg-background/50">
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="p-6 prose prose-sm dark:prose-invert max-w-none text-foreground/80">
               <ReactMarkdown>
                 {job.job_description || "No description provided."}
