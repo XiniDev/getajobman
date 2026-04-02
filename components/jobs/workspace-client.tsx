@@ -254,9 +254,7 @@ export function WorkspaceClient({ job }: { job: any }) {
 
               <CardContent className="flex-1 p-0 overflow-hidden">
                 <TabsContent value="resume" className="h-full m-0 data-[state=active]:flex flex-col">
-                  
-                  {/* UPDATE: Added Download PDF Button next to the Preview Toggle */}
-                  <div className="flex justify-between items-center p-2 border-b bg-muted/10 shrink-0">
+                  <div className="flex justify-end items-center gap-2 p-2 border-b bg-muted/10 shrink-0">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -327,7 +325,7 @@ export function WorkspaceClient({ job }: { job: any }) {
         </Card>
       </div>
 
-      <div className="hidden">
+      <div className="absolute left-[-9999px] top-[-9999px] overflow-hidden">
         <div id="resume-pdf-container" className="p-8 bg-white text-black prose prose-sm max-w-none w-[8.5in]">
           <ReactMarkdown>{resumeText}</ReactMarkdown>
         </div>
