@@ -159,7 +159,7 @@ export function WorkspaceClient({ job }: { job: any }) {
               Job Description
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto p-0 flex flex-col">
+          <CardContent className="flex-1 overflow-y-auto overflow-x-hidden p-0 flex flex-col">
             {job.required_tech_stack && job.required_tech_stack.length > 0 && (
               <div className="p-4 border-b bg-muted/10 shrink-0">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Required Tech Stack</h4>
@@ -173,7 +173,7 @@ export function WorkspaceClient({ job }: { job: any }) {
               </div>
             )}
 
-            <div className="p-6 prose prose-sm dark:prose-invert max-w-none text-foreground/80">
+            <div className="p-6 prose prose-sm dark:prose-invert max-w-none text-foreground/80 break-words">
               <ReactMarkdown>
                 {job.job_description || "No description provided."}
               </ReactMarkdown>
