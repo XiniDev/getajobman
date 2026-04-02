@@ -254,7 +254,20 @@ export function WorkspaceClient({ job }: { job: any }) {
 
               <CardContent className="flex-1 p-0 overflow-hidden">
                 <TabsContent value="resume" className="h-full m-0 data-[state=active]:flex flex-col">
-                  <div className="flex justify-end items-center gap-2 p-2 border-b bg-muted/10 shrink-0">
+                  <div className="flex justify-between items-center px-4 py-2 border-b bg-muted/5 shrink-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setIsPreviewMode(!isPreviewMode)}
+                      className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
+                    >
+                      {isPreviewMode ? (
+                        <><PencilLine className="h-3.5 w-3.5 mr-1.5" /> Edit Markdown</>
+                      ) : (
+                        <><Eye className="h-3.5 w-3.5 mr-1.5" /> Preview CV</>
+                      )}
+                    </Button>
+
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -266,19 +279,6 @@ export function WorkspaceClient({ job }: { job: any }) {
                         <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Preparing PDF...</>
                       ) : (
                         <><Download className="h-3.5 w-3.5 mr-1.5" /> Download PDF</>
-                      )}
-                    </Button>
-
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setIsPreviewMode(!isPreviewMode)}
-                      className="h-8 text-xs font-medium"
-                    >
-                      {isPreviewMode ? (
-                        <><PencilLine className="h-3.5 w-3.5 mr-1.5" /> Edit Markdown</>
-                      ) : (
-                        <><Eye className="h-3.5 w-3.5 mr-1.5" /> Preview CV</>
                       )}
                     </Button>
                   </div>
