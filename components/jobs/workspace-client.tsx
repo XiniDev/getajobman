@@ -21,7 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { 
   Loader2, Sparkles, Building2, ExternalLink, Briefcase, RefreshCw,
-  MapPin, Banknote, Laptop, Briefcase as BriefcaseIcon, Eye, PencilLine
+  MapPin, Banknote, Laptop, Briefcase as BriefcaseIcon, Eye, PencilLine, Download
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ import ReactMarkdown from "react-markdown";
 export function WorkspaceClient({ job }: { job: any }) {
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [isRegenOpen, setIsRegenOpen] = useState(false);
   const [regenResume, setRegenResume] = useState(true);
   const [regenCoverLetter, setRegenCoverLetter] = useState(true);
@@ -69,6 +70,34 @@ export function WorkspaceClient({ job }: { job: any }) {
       toast.error("Regeneration failed", { description: error.message });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+      
+      const element = document.getElementById("resume-pdf-container");
+      if (!element) throw new Error("Could not find resume content");
+
+      const cleanCompanyName = job.company_name.replace(/[^a-zA-Z0-9]/g, "_");
+
+      const opt = {
+        margin:       0.75,
+        filename:     `${cleanCompanyName}_Resume.pdf`,
+        image:        { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      toast.success("Resume downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate PDF");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -225,7 +254,23 @@ export function WorkspaceClient({ job }: { job: any }) {
 
               <CardContent className="flex-1 p-0 overflow-hidden">
                 <TabsContent value="resume" className="h-full m-0 data-[state=active]:flex flex-col">
-                  <div className="flex justify-end p-2 border-b bg-muted/10 shrink-0">
+                  
+                  {/* UPDATE: Added Download PDF Button next to the Preview Toggle */}
+                  <div className="flex justify-between items-center p-2 border-b bg-muted/10 shrink-0">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleDownloadPDF}
+                      disabled={isDownloading || !resumeText}
+                      className="h-8 text-xs font-medium border-primary/20 text-primary hover:bg-primary/10"
+                    >
+                      {isDownloading ? (
+                        <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Preparing PDF...</>
+                      ) : (
+                        <><Download className="h-3.5 w-3.5 mr-1.5" /> Download PDF</>
+                      )}
+                    </Button>
+
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -281,6 +326,13 @@ export function WorkspaceClient({ job }: { job: any }) {
           )}
         </Card>
       </div>
+
+      <div className="hidden">
+        <div id="resume-pdf-container" className="p-8 bg-white text-black prose prose-sm max-w-none w-[8.5in]">
+          <ReactMarkdown>{resumeText}</ReactMarkdown>
+        </div>
+      </div>
+      
     </div>
   );
 }
